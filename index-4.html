@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1B5E20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="المركز التعليمي">
+<title>مركز خادم القرآن</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-dark: #1B5E20;
+  --green-mid: #2E7D32;
+  --green-light: #4CAF50;
+  --green-pale: #E8F5E9;
+  --green-faint: #F1F8E9;
+  --gold: #F9A825;
+  --gold-pale: #FFF9C4;
+  --red: #C62828;
+  --red-pale: #FFEBEE;
+  --orange: #E65100;
+  --orange-pale: #FFF3E0;
+  --blue: #1565C0;
+  --blue-pale: #E3F2FD;
+  --surface: #F4F6F4;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --text-light: #666;
+  --border: #E0E0E0;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --nav-h: 68px;
+  --header-h: 60px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Tajawal',sans-serif; background:var(--surface); color:var(--text); min-height:100vh; overflow-x:hidden; }
+/* ── SCREENS ── */
+.screen { display:none; flex-direction:column; min-height:100vh; padding-bottom:var(--nav-h); }
+.screen.active { display:flex; }
+/* ── HEADER ── */
+.app-header { background:var(--green-dark); color:#fff; height:var(--header-h); display:flex; align-items:center; justify-content:space-between; padding:0 16px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+.app-header h1 { font-size:18px; font-weight:700; }
+.header-sub { font-size:12px; opacity:.8; margin-top:1px; }
+.header-badge { background:var(--gold); color:#000; border-radius:20px; padding:4px 10px; font-size:12px; font-weight:700; }
+/* ── NAV ── */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; height:var(--nav-h); background:#fff; border-top:1px solid var(--border); display:flex; z-index:200; box-shadow:0 -4px 20px rgba(0,0,0,.1); }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:all .2s; color:var(--text-light); border:none; background:none; font-family:'Tajawal',sans-serif; padding:8px 4px; }
+.nav-item.active { color:var(--green-dark); }
+.nav-item .nav-icon { font-size:22px; line-height:1; }
+.nav-item .nav-label { font-size:10px; font-weight:600; }
+.nav-item.active .nav-dot { width:4px; height:4px; background:var(--green-dark); border-radius:50%; margin-top:2px; }
+/* ── SCROLL CONTENT ── */
+.scroll-content { flex:1; overflow-y:auto; padding:16px; -webkit-overflow-scrolling:touch; }
+/* ── CARDS ── */
+.card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; margin-bottom:12px; }
+.card-title { font-size:14px; font-weight:700; color:var(--text-light); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+/* ── KPI GRID ── */
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.kpi-card { background:var(--card); border-radius:var(--radius-sm); padding:14px; box-shadow:var(--shadow); text-align:center; }
+.kpi-val { font-size:32px; font-weight:800; line-height:1; }
+.kpi-label { font-size:11px; color:var(--text-light); margin-top:4px; font-weight:500; }
+.kpi-green .kpi-val { color:var(--green-mid); }
+.kpi-red .kpi-val { color:var(--red); }
+.kpi-gold .kpi-val { color:var(--gold); }
+.kpi-blue .kpi-val { color:var(--blue); }
+/* ── STUDENT LIST ── */
+.student-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+.student-item:last-child { border-bottom:none; }
+.student-avatar { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:#fff; flex-shrink:0; }
+.student-info { flex:1; min-width:0; }
+.student-name { font-size:14px; font-weight:600; }
+.student-meta { font-size:12px; color:var(--text-light); margin-top:2px; }
+.student-badge { font-size:11px; padding:3px 8px; border-radius:20px; font-weight:600; white-space:nowrap; }
+.badge-active { background:var(--green-pale); color:var(--green-mid); }
+.badge-absent { background:var(--red-pale); color:var(--red); }
+.badge-frozen { background:var(--orange-pale); color:var(--orange); }
+/* ── SEARCH ── */
+.search-box { background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-family:'Tajawal',sans-serif; font-size:14px; width:100%; outline:none; margin-bottom:12px; transition:border-color .2s; }
+.search-box:focus { border-color:var(--green-mid); }
+/* ── FORMS ── */
+.form-group { margin-bottom:14px; }
+.form-label { font-size:13px; font-weight:600; color:var(--text-light); margin-bottom:6px; display:block; }
+.form-input, .form-select, .form-textarea { width:100%; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:11px 14px; font-family:'Tajawal',sans-serif; font-size:14px; outline:none; background:#fff; transition:border-color .2s; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--green-mid); }
+.form-textarea { resize:vertical; min-height:80px; }
+/* ── BUTTONS ── */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:none; border-radius:var(--radius-sm); padding:12px 20px; font-family:'Tajawal',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; width:100%; }
+.btn-primary { background:var(--green-dark); color:#fff; }
+.btn-primary:active { background:var(--green-mid); transform:scale(.98); }
+.btn-danger { background:var(--red); color:#fff; }
+.btn-gold { background:var(--gold); color:#000; }
+.btn-outline { background:transparent; color:var(--green-dark); border:2px solid var(--green-dark); }
+.btn-sm { padding:8px 14px; font-size:13px; width:auto; border-radius:8px; }
+/* ── MODAL ── */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:500; align-items:flex-end; }
+.modal-overlay.open { display:flex; }
+.modal-sheet { background:#fff; border-radius:24px 24px 0 0; padding:20px 16px 32px; width:100%; max-height:90vh; overflow-y:auto; animation:slideUp .3s ease; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+.modal-title { font-size:17px; font-weight:700; margin-bottom:16px; }
+/* ── ALERT ITEMS ── */
+.alert-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-sm); margin-bottom:8px; }
+.alert-red { background:var(--red-pale); }
+.alert-gold { background:var(--gold-pale); }
+.alert-green { background:var(--green-pale); }
+.alert-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.dot-red { background:var(--red); }
+.dot-gold { background:var(--gold); }
+.dot-green { background:var(--green-light); }
+/* ── RECORD ROW ── */
+.record-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+.record-row:last-child { border-bottom:none; }
+.record-label { font-size:13px; color:var(--text-light); }
+.record-val { font-size:14px; font-weight:600; }
+/* ── TAB BAR ── */
+.tab-bar { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:2px; }
+.tab { padding:8px 16px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:'Tajawal',sans-serif; background:var(--border); color:var(--text-light); white-space:nowrap; transition:all .2s; }
+.tab.active { background:var(--green-dark); color:#fff; }
+/* ── PROGRESS BAR ── */
+.progress-wrap { background:#E0E0E0; border-radius:4px; height:6px; overflow:hidden; margin-top:6px; }
+.progress-bar { height:100%; border-radius:4px; transition:width .5s ease; }
+/* ── MSG CARD ── */
+.msg-card { background:var(--green-faint); border:1px solid #C8E6C9; border-radius:var(--radius-sm); padding:14px; font-size:13px; line-height:1.8; white-space:pre-line; direction:rtl; margin-bottom:10px; }
+/* ── TOAST ── */
+.toast { position:fixed; bottom:calc(var(--nav-h) + 12px); left:50%; transform:translateX(-50%) translateY(20px); background:#323232; color:#fff; padding:10px 20px; border-radius:24px; font-size:13px; font-weight:600; opacity:0; transition:all .3s; z-index:999; white-space:nowrap; pointer-events:none; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+/* ── STAT ROW ── */
+.stat-section { margin-bottom:16px; }
+.stat-header { font-size:13px; font-weight:700; color:var(--text-light); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+/* ── FAB ── */
+.fab { position:fixed; bottom:calc(var(--nav-h) + 16px); left:16px; width:54px; height:54px; border-radius:50%; background:var(--green-dark); color:#fff; border:none; font-size:26px; cursor:pointer; box-shadow:0 4px 16px rgba(27,94,32,.4); display:flex; align-items:center; justify-content:center; z-index:150; transition:transform .2s; }
+.fab:active { transform:scale(.9); }
+/* ── EMPTY STATE ── */
+.empty { text-align:center; padding:40px 20px; color:var(--text-light); }
+.empty-icon { font-size:48px; margin-bottom:12px; }
+.empty-text { font-size:14px; }
+/* ── ABSENCE CHIP ── */
+.chip { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+.chip-red { background:var(--red-pale); color:var(--red); }
+.chip-green { background:var(--green-pale); color:var(--green-mid); }
+.chip-gold { background:var(--gold-pale); color:#795548; }
+/* divider */
+.divider { height:1px; background:var(--border); margin:12px 0; }
+/* group indicator */
+.group-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-left:4px; }
+</style>
+<style>
+.clickable{cursor:pointer;transition:transform .1s;}
+.clickable:active{transform:scale(.97);}
+</style>
+</head>
+<body>
+
+<!-- SCREEN: HOME -->
+<div class="screen active" id="screen-home">
+  <div class="app-header">
+    <div>
+      <div style="font-size:17px;font-weight:700;">🕌 مركز خادم القرآن</div>
+      <div class="header-sub" id="today-date"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="openModal('modal-alarm')" style="border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:20px;padding:6px 12px;font-size:18px;cursor:pointer">⏰</button>
+      <div class="header-badge" id="hdr-total">128 طالب</div>
+    </div>
+  </div>
+  <div class="scroll-content">
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-green clickable" onclick="goTo('students')"><div class="kpi-val" id="kpi-active">—</div><div class="kpi-label">👥 طالب نشط</div></div>
+      <div class="kpi-card kpi-red clickable" onclick="goTo('attendance')"><div class="kpi-val" id="kpi-absences-today">—</div><div class="kpi-label">📋 غياب اليوم</div></div>
+      <div class="kpi-card kpi-gold clickable" onclick="goTo('attendance')"><div class="kpi-val" id="kpi-absences-week">—</div><div class="kpi-label">📋 غياب الأسبوع</div></div>
+      <div class="kpi-card kpi-blue clickable" onclick="goTo('homework')"><div class="kpi-val" id="kpi-homework-rate">—</div><div class="kpi-label">📚 إنجاز الواجبات</div></div>
+    </div>
+    <div class="card" id="fees-alert-home" style="display:none"></div>
+    <div class="card"><div class="card-title">⚠️ يحتاجون متابعة عاجلة</div><div id="alert-list"><div class="empty"><div class="empty-text">لا يوجد تنبيهات ✅</div></div></div></div>
+    <div class="card"><div class="card-title">🏆 أكثر الطلاب التزاماً</div><div id="top-students-list"><div class="empty"><div class="empty-text">أدخل بيانات الواجبات لعرض الترتيب</div></div></div></div>
+    <div class="card"><div class="card-title">📅 آخر تسجيلات الغياب</div><div id="recent-absences"><div class="empty"><div class="empty-text">لا يوجد غياب مسجل</div></div></div></div>
+  </div>
+</div>
+
+<!-- SCREEN: STUDENTS -->
+<div class="screen" id="screen-students">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">👥 الطلاب</div></div><div class="header-badge" id="students-count-badge">—</div></div>
+  <div class="scroll-content">
+    <input class="search-box" id="student-search" type="text" placeholder="🔍 ابحث عن طالب..." oninput="filterStudents()">
+    <div class="tab-bar">
+      <button class="tab active" onclick="filterByStatus('all',this)">الكل</button>
+      <button class="tab" onclick="filterByStatus('نشط',this)">نشط</button>
+      <button class="tab" onclick="filterByStatus('منقطع',this)">منقطع</button>
+      <button class="tab" onclick="filterByStatus('مجمد',this)">مجمد</button>
+    </div>
+    <div id="students-list"></div>
+  </div>
+  <button class="fab" onclick="openModal('modal-add-student')">+</button>
+</div>
+
+<!-- SCREEN: ATTENDANCE -->
+<div class="screen" id="screen-attendance">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">📋 الحضور والغياب</div></div></div>
+  <div class="scroll-content">
+    <div class="card">
+      <div class="card-title">➕ تسجيل غياب</div>
+      <div class="form-group"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="abs-date"></div>
+      <div class="form-group"><label class="form-label">اسم الطالب</label><select class="form-select" id="abs-student"><option value="">— اختر —</option></select></div>
+      <div class="form-group"><label class="form-label">سبب الغياب (اختياري)</label><input class="form-input" type="text" id="abs-reason" placeholder="مرض، سفر..."></div>
+      <button class="btn btn-danger" onclick="saveAbsence()">🔴 تسجيل الغياب</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 سجل الغياب</div>
+      <div class="tab-bar">
+        <button class="tab active" onclick="filterAbsences('all',this)">الكل</button>
+        <button class="tab" onclick="filterAbsences('today',this)">اليوم</button>
+        <button class="tab" onclick="filterAbsences('week',this)">الأسبوع</button>
+        <button class="tab" onclick="filterAbsences('month',this)">الشهر</button>
+      </div>
+      <div id="absences-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: HOMEWORK -->
+<div class="screen" id="screen-homework">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">📚 متابعة الواجبات</div></div></div>
+  <div class="scroll-content">
+    <div class="card">
+      <div class="card-title">➕ تسجيل واجب</div>
+      <div class="form-group"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="hw-date"></div>
+      <div class="form-group"><label class="form-label">اسم الطالب</label><select class="form-select" id="hw-student"><option value="">— اختر —</option></select></div>
+      <div class="form-group"><label class="form-label">الواجب المطلوب</label><input class="form-input" type="text" id="hw-task" placeholder="حفظ سورة..."></div>
+      <div class="form-group"><label class="form-label">هل نفّذه؟</label><select class="form-select" id="hw-done"><option value="نعم">✅ نعم</option><option value="لا">❌ لا</option></select></div>
+      <div class="form-group"><label class="form-label">درجة الالتزام</label><select class="form-select" id="hw-grade"><option>ممتاز</option><option>جيد جداً</option><option>جيد</option><option>مقبول</option><option>ضعيف</option></select></div>
+      <div class="form-group"><label class="form-label">ملاحظات المعلم</label><textarea class="form-textarea" id="hw-note" placeholder="ملاحظات..."></textarea></div>
+      <button class="btn btn-primary" onclick="saveHomework()">💾 حفظ</button>
+    </div>
+    <div class="card"><div class="card-title">📊 سجل الواجبات</div><div id="homework-list"></div></div>
+  </div>
+</div>
+
+<!-- SCREEN: HIFZ -->
+<div class="screen" id="screen-hifz">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">🌙 الحفظ والمراجعة</div></div></div>
+  <div class="scroll-content">
+    <div class="card">
+      <div class="card-title">➕ تسجيل جلسة حفظ</div>
+      <div class="form-group"><label class="form-label">التاريخ</label><input class="form-input" type="date" id="hf-date"></div>
+      <div class="form-group"><label class="form-label">اسم الطالب</label><select class="form-select" id="hf-student"><option value="">— اختر —</option></select></div>
+      <div class="form-group"><label class="form-label">مقدار الحفظ الجديد</label><select class="form-select" id="hf-new"><option>ربع صفحة</option><option>نصف صفحة</option><option>صفحة كاملة</option><option>صفحتان</option><option>ثلاث صفحات</option><option>لا يوجد حفظ جديد</option></select></div>
+      <div class="form-group"><label class="form-label">مقدار المراجعة</label><select class="form-select" id="hf-review"><option>ربع صفحة</option><option>نصف صفحة</option><option>صفحة كاملة</option><option>صفحتان</option><option>جزء كامل</option><option>لا يوجد مراجعة</option></select></div>
+      <div class="form-group"><label class="form-label">التقدير</label><select class="form-select" id="hf-grade"><option>ممتاز</option><option>جيد جداً</option><option>جيد</option><option>مقبول</option><option>ضعيف</option></select></div>
+      <div class="form-group"><label class="form-label">ملاحظات الأداء</label><textarea class="form-textarea" id="hf-note" placeholder="ملاحظات..."></textarea></div>
+      <button class="btn btn-primary" onclick="saveHifz()">💾 حفظ</button>
+    </div>
+    <div class="card"><div class="card-title">📊 سجل الحفظ</div><div id="hifz-list"></div></div>
+  </div>
+</div>
+
+<!-- SCREEN: FEES -->
+<div class="screen" id="screen-fees">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">💰 المصروفات الشهرية</div></div><div class="header-badge" id="fees-unpaid-badge">—</div></div>
+  <div class="scroll-content">
+    <div class="card">
+      <div class="card-title">📅 اختر الشهر</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="form-select" id="fees-month" onchange="renderFees()" style="flex:1"></select>
+        <button class="btn btn-danger btn-sm" onclick="markAllUnpaid()" style="width:auto;white-space:nowrap">تصفير</button>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-green"><div class="kpi-val" id="fees-paid-count">—</div><div class="kpi-label">دفعوا ✅</div></div>
+      <div class="kpi-card kpi-red"><div class="kpi-val" id="fees-unpaid-count">—</div><div class="kpi-label">لم يدفعوا ❌</div></div>
+    </div>
+    <input class="search-box" id="fees-search" type="text" placeholder="🔍 ابحث عن طالب..." oninput="renderFees()">
+    <div class="tab-bar">
+      <button class="tab active" onclick="filterFeesList('all',this)">الكل</button>
+      <button class="tab" onclick="filterFeesList('unpaid',this)">لم يدفعوا</button>
+      <button class="tab" onclick="filterFeesList('paid',this)">دفعوا</button>
+    </div>
+    <div id="fees-list"></div>
+  </div>
+</div>
+
+<!-- SCREEN: GROUPS -->
+<div class="screen" id="screen-groups">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">🗂️ المجموعات</div></div></div>
+  <div class="scroll-content">
+    <div class="tab-bar" id="groups-tabs"></div>
+    <div id="groups-content"></div>
+  </div>
+</div>
+
+<!-- SCREEN: REPORTS -->
+<div class="screen" id="screen-reports">
+  <div class="app-header"><div><div style="font-size:18px;font-weight:700;">📊 التقارير والرسائل</div></div></div>
+  <div class="scroll-content">
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchReportTab('weekly',this)">الأسبوعي</button>
+      <button class="tab" onclick="switchReportTab('monthly',this)">الشهري</button>
+      <button class="tab" onclick="switchReportTab('student',this)">طالب</button>
+      <button class="tab" onclick="switchReportTab('messages',this)">رسائل</button>
+    </div>
+
+    <div id="report-weekly">
+      <div class="card"><div class="card-title">📅 التقرير الأسبوعي التلقائي</div><div id="weekly-stats"></div></div>
+      <div class="card">
+        <div class="card-title">✍️ يملؤها المعلم</div>
+        <div class="form-group"><label class="form-label">ما تم شرحه</label><textarea class="form-textarea" id="rpt-explained" placeholder="اكتب هنا..."></textarea></div>
+        <div class="form-group"><label class="form-label">ما تم حفظه / مراجعته</label><textarea class="form-textarea" id="rpt-memorized" placeholder="اكتب هنا..."></textarea></div>
+        <div class="form-group"><label class="form-label">الواجب المطلوب</label><textarea class="form-textarea" id="rpt-homework" placeholder="اكتب هنا..."></textarea></div>
+        <div class="form-group"><label class="form-label">خطة الأسبوع القادم</label><textarea class="form-textarea" id="rpt-plan" placeholder="اكتب هنا..."></textarea></div>
+        <button class="btn btn-primary" onclick="generateWeeklyReport()">📄 توليد التقرير</button>
+      </div>
+      <div class="card" id="weekly-report-output" style="display:none">
+        <div class="card-title">📋 التقرير الجاهز</div>
+        <div class="msg-card" id="weekly-report-text"></div>
+        <button class="btn btn-gold" onclick="copyReport()" style="margin-bottom:8px">📋 نسخ</button>
+        <button class="btn btn-primary" onclick="shareReport()" style="background:#25D366">📱 مشاركة واتساب</button>
+      </div>
+    </div>
+
+    <div id="report-monthly" style="display:none">
+      <div class="card">
+        <div class="card-title">📅 الملخص الشهري</div>
+        <div class="form-group"><label class="form-label">اختر الشهر</label><select class="form-select" id="monthly-select" onchange="renderMonthlyReport()"></select></div>
+        <div id="monthly-stats"></div>
+      </div>
+      <div class="card" id="monthly-top" style="display:none"><div class="card-title">🏆 أكثر الطلاب التزاماً</div><div id="monthly-top-list"></div></div>
+      <div class="card" id="monthly-absent" style="display:none"><div class="card-title">⚠️ أكثر الغائبين</div><div id="monthly-absent-list"></div></div>
+      <div class="card" id="monthly-fees-card" style="display:none">
+        <div class="card-title">💰 المتأخرون في الدفع</div>
+        <div id="monthly-fees-list"></div>
+      </div>
+    </div>
+
+    <div id="report-student" style="display:none">
+      <div class="card">
+        <div class="form-group"><label class="form-label">اختر الطالب</label><select class="form-select" id="stat-student" onchange="loadStudentStats()"><option value="">— اختر —</option></select></div>
+      </div>
+      <div id="student-stats-content"></div>
+    </div>
+
+    <div id="report-messages" style="display:none">
+      <div class="card" style="background:var(--green-pale);border:1px solid #C8E6C9">
+        <div class="card-title">📢 رسائل المتأخرين في الدفع</div>
+        <div id="bulk-fees-count" style="font-size:13px;color:var(--text-light);margin-bottom:10px"></div>
+        <div id="bulk-fees-list"></div>
+      </div>
+      <div class="card">
+        <div class="form-group"><label class="form-label">اختر الطالب</label><select class="form-select" id="msg-student" onchange="loadMessages()"><option value="">— اختر —</option></select></div>
+        <div id="msg-info" style="display:none">
+          <div class="record-row"><span class="record-label">إجمالي الغياب</span><span class="record-val" id="msg-absences">—</span></div>
+          <div class="record-row"><span class="record-label">نسبة الواجبات</span><span class="record-val" id="msg-hw-rate">—</span></div>
+        </div>
+      </div>
+      <div id="messages-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD STUDENT -->
+<div class="modal-overlay" id="modal-add-student">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ إضافة طالب جديد</div>
+    <div class="form-group"><label class="form-label">اسم الطالب الكامل *</label><input class="form-input" id="new-student-name" placeholder="اكتب الاسم كاملاً"></div>
+    <div class="form-group"><label class="form-label">المجموعة</label>
+      <select class="form-select" id="new-student-group">
+        <option value="">— اختر —</option>
+        <option>المجموعة الأولى</option><option>المجموعة الثانية</option>
+        <option>المجموعة الثالثة</option><option>المجموعة الرابعة</option><option>المجموعة الخامسة</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">رقم واتساب ولي الأمر</label><input class="form-input" id="new-student-phone" type="tel" placeholder="05xxxxxxxx"></div>
+    <div class="form-group"><label class="form-label">حالة الطالب</label>
+      <select class="form-select" id="new-student-status"><option value="نشط">نشط</option><option value="منقطع">منقطع</option><option value="مجمد">مجمد</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="new-student-note" placeholder="ملاحظات اختيارية..."></textarea></div>
+    <button class="btn btn-primary" onclick="saveNewStudent()" style="margin-bottom:8px">✅ إضافة الطالب</button>
+    <button class="btn btn-outline" onclick="closeModal('modal-add-student')">إلغاء</button>
+  </div>
+</div>
+
+<!-- MODAL: STUDENT DETAIL -->
+<div class="modal-overlay" id="modal-student-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="student-detail-content"></div>
+    <button class="btn btn-outline" onclick="closeModal('modal-student-detail')" style="margin-top:12px">إغلاق</button>
+  </div>
+</div>
+
+<!-- MODAL: ALARM -->
+<div class="modal-overlay" id="modal-alarm">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⏰ تذكير يومي للغياب</div>
+    <p style="font-size:13px;color:var(--text-light);margin-bottom:16px">سيظهر إشعار يومي في الوقت المحدد لتذكيرك بتسجيل الغياب</p>
+    <div class="form-group"><label class="form-label">وقت التذكير</label><input class="form-input" type="time" id="alarm-time" value="13:00"></div>
+    <div id="alarm-status" style="font-size:13px;margin-bottom:12px;padding:10px;border-radius:8px;display:none"></div>
+    <button class="btn btn-primary" onclick="setAlarm()" style="margin-bottom:8px">✅ تفعيل التذكير</button>
+    <button class="btn btn-danger" onclick="cancelAlarm()" style="margin-bottom:8px">🗑️ إلغاء التذكير</button>
+    <button class="btn btn-outline" onclick="closeModal('modal-alarm')">إغلاق</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showScreen('home',this)"><span class="nav-icon">🏠</span><span class="nav-label">الرئيسية</span></button>
+  <button class="nav-item" onclick="showScreen('students',this)"><span class="nav-icon">👥</span><span class="nav-label">الطلاب</span></button>
+  <button class="nav-item" onclick="showScreen('attendance',this)"><span class="nav-icon">📋</span><span class="nav-label">الحضور</span></button>
+  <button class="nav-item" onclick="showScreen('homework',this)"><span class="nav-icon">📚</span><span class="nav-label">الواجبات</span></button>
+  <button class="nav-item" onclick="showScreen('hifz',this)"><span class="nav-icon">🌙</span><span class="nav-label">الحفظ</span></button>
+  <button class="nav-item" onclick="showScreen('fees',this)"><span class="nav-icon">💰</span><span class="nav-label">المصروفات</span></button>
+  <button class="nav-item" onclick="showScreen('groups',this)"><span class="nav-icon">🗂️</span><span class="nav-label">المجموعات</span></button>
+  <button class="nav-item" onclick="showScreen('reports',this)"><span class="nav-icon">📊</span><span class="nav-label">التقارير</span></button>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+const INITIAL_NAMES = ["أمل أنور","رقية أنور","أروى أنور","مكة محمود حمدان","غزل أحمد سعيد","سما محمود محمد","صفا أحمد فراج","سامية محمد صلاح","رقية السيد جمال","بطة طه السيد","هنا هيثم رجب","زينب رامي","سجدة محمد","سما سعيد خميس","ملك طه","مكة ابراهيم","ميرال أحمد السيد","مكة طه","حنين سعيد سعد","رشا عمر","بسملة أحمد","كيان أحمد","رودينا أحمد","حنين محمد دسوقي","أسيل أحمد","زمزم علاء","سجدة محمد سعيد","سجدة محمد نبيل","وعد محمد دسوقي","زينب خالد","حنين محمود هلال","شهد محمود هلال","مكة عمرو","مسك محمود","ندا أشرف","نيجار أحمد جزيرة","سلمى عادل محمد","جويرية عمران","آية عبد الموجود","ثناء محمد جلال","رحمة إسلام","حمزة محمد نبيل","سعيد محمد الروبي","ياسين علاء الطوخي","محمد صلاح سالم","اياد عبدالرازق","محمود هلال جزيرة","إياد رامي","حمزة محمود","كريم محمد صبحي","نور محمد صبحي","مالك حسن","لؤي حسن","سعيد محمد حامد","آدم علاء محمد","محمد محمود محمد","محمد إيهاب","محمد عادل","مصطفى أحمد حسن","محمد أحمد صلاح","إبراهيم محمود حسن","حسن محمود حسن","محمد أحمد طوخي","مالك السيد","أحمد كريم","يوسف رمضان","محمد سيد فرج","فريد بدير","محمد عبده","حمزة عبده","أحمد محمد سعيد","زين كريم","سيد محمد سعيد","مالك أشرف","مالك إسلام","طه أحمد بيومي","أحمد عمرو","إبراهيم هيثم","إبراهيم ايمن","أحمد عبد العزيز","كريم طه","أحمد سعيد","محمد معتز سعيد","محمد سعيد","أحمد سيد محمد يوسف","يونس","عمر إبراهيم","سيف فارس","دهب هيثم","ملك حسين","مكة حسين","وجيه كريم","رحيم كريم","حبيب محمد","محمد أحمد محمد","محمد طه","حبيبة محمد دسوقي","جنى محمد","عائشة عمر","أيسل","شمس سعيد","ساندي محمد","فرحة محمد","بسملة حسن","هدى حمدي","راوية محمد","كيان باسم","يثرب محمد","إبراهيم سيد","محمد أحمد رفاعي","إبراهيم إسلام","يوسف كريم","مالك عصام","إسلام محمد إبراهيم","ملك محمد إبراهيم","سد علي حيتة","يوسف محمد خضير","سيف عبد الموجود","طه علي طه","أحمد عبد العزيز سبيع","أحمد سيد عفيفي قرطام","محمد أحمد عادل","سعيد محمد سعيد","أحمد محمد سعيد","وعد محمد طه","هاجر محمد طه","شروق محمد طه","سجدة محمد فراج"];
+const COLORS = ['#1B5E20','#1565C0','#4A148C','#B71C1C','#E65100','#004D40','#F57F17','#880E4F'];
+const GROUP_LIST = ['المجموعة الأولى','المجموعة الثانية','المجموعة الثالثة','المجموعة الرابعة','المجموعة الخامسة'];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let DB = { students:[], absences:[], homework:[], hifz:[], fees:[] };
+let currentStatusFilter = 'all';
+let currentSearch = '';
+let feeFilter = 'all';
+let activeGroup = '';
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function initDB() {
+  const saved = localStorage.getItem('center_db_v2');
+  if (saved) {
+    DB = JSON.parse(saved);
+    if (!DB.fees) DB.fees = [];
+    if (!DB.hifz) DB.hifz = [];
+  } else {
+    DB.students = INITIAL_NAMES.map((name, i) => ({
+      id: 'ST' + String(i+1).padStart(3,'0'),
+      name, group:'', phone:'', status:'نشط', joinDate:'2024-09-01', notes:''
+    }));
+    saveDB();
+  }
+}
+
+function saveDB() { localStorage.setItem('center_db_v2', JSON.stringify(DB)); }
+
+// ═══════════════════════════════════════════
+// DATE UTILS
+// ═══════════════════════════════════════════
+function today() { return new Date().toISOString().split('T')[0]; }
+function weekAgo() { const d=new Date(); d.setDate(d.getDate()-7); return d.toISOString().split('T')[0]; }
+function monthStart() { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'; }
+function currentMonth() { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function isOffDay(ds) { if(!ds) return false; const day=new Date(ds).getDay(); return day===1||day===5; }
+function fmtDate(s) { if(!s) return ''; return new Date(s).toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+function arabicDay(s) { const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']; return days[new Date(s).getDay()]; }
+function monthLabel(ym) {
+  const [y,m] = ym.split('-');
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return months[parseInt(m)-1]+' '+y;
+}
+function avatarColor(name) { return COLORS[Math.abs((name||'').charCodeAt(0)-32)%COLORS.length]; }
+function initials(name) { return (name||'').split(' ').map(w=>w[0]).slice(0,2).join(''); }
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function showScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => {
+    b.classList.remove('active');
+    const dot = b.querySelector('.nav-dot');
+    if (dot) dot.remove();
+  });
+  const el = document.getElementById('screen-'+name);
+  if (!el) return;
+  el.classList.add('active');
+  if (btn) {
+    btn.classList.add('active');
+    const dot = document.createElement('span');
+    dot.className = 'nav-dot';
+    btn.appendChild(dot);
+  }
+  if (name==='home') refreshDashboard();
+  if (name==='students') renderStudents();
+  if (name==='attendance') { renderAbsences('all'); setTodayDate('abs-date'); }
+  if (name==='homework') { renderHomework(); setTodayDate('hw-date'); }
+  if (name==='hifz') { renderHifz(); setTodayDate('hf-date'); }
+  if (name==='fees') { initFeesMonths(); renderFees(); }
+  if (name==='groups') renderGroups();
+  if (name==='reports') { refreshWeeklyStats(); fillSelects(); }
+}
+
+function goTo(name) {
+  let btn = null;
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if ((b.getAttribute('onclick')||'').includes("'"+name+"'")) btn = b;
+  });
+  showScreen(name, btn);
+}
+
+function setTodayDate(id) { const el=document.getElementById(id); if(el&&!el.value) el.value=today(); }
+
+// ═══════════════════════════════════════════
+// SELECTS
+// ═══════════════════════════════════════════
+function fillSelects() {
+  ['abs-student','hw-student','hf-student','stat-student','msg-student'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">— اختر طالباً —</option>';
+    [...DB.students].filter(s=>s.status==='نشط').sort((a,b)=>a.name.localeCompare(b.name,'ar')).forEach(s => {
+      el.innerHTML += '<option value="'+s.name+'">'+s.name+'</option>';
+    });
+    if (cur) el.value = cur;
+  });
+  loadBulkFees();
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+function refreshDashboard() {
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const active = DB.students.filter(s=>s.status==='نشط').length;
+  document.getElementById('kpi-active').textContent = active;
+  document.getElementById('hdr-total').textContent = DB.students.length+' طالب';
+  document.getElementById('students-count-badge').textContent = DB.students.length+' طالب';
+  const todayStr = today();
+  document.getElementById('kpi-absences-today').textContent = DB.absences.filter(a=>a.date===todayStr).length;
+  document.getElementById('kpi-absences-week').textContent = DB.absences.filter(a=>a.date>=weekAgo()&&!isOffDay(a.date)).length;
+  const hw = DB.homework;
+  document.getElementById('kpi-homework-rate').textContent = hw.length ? Math.round(hw.filter(h=>h.done==='نعم').length/hw.length*100)+'%' : '—';
+
+  // Fees alert
+  const month = currentMonth();
+  const unpaid = DB.students.filter(s=>s.status==='نشط'&&!getFeeRecord(s.name,month)?.paid).length;
+  const fAlert = document.getElementById('fees-alert-home');
+  if (unpaid > 0) {
+    fAlert.style.display = 'block';
+    fAlert.innerHTML = '<div class="alert-item alert-red"><div class="alert-dot dot-red"></div><strong>'+unpaid+' طالب لم يدفعوا مصروف '+monthLabel(month)+'</strong><button onclick=\'goTo("fees")\' style=\'border:none;background:none;color:var(--blue);font-size:12px;cursor:pointer;font-family:Tajawal,sans-serif;margin-right:8px\'>عرض ←</button></div>';
+  } else { fAlert.style.display = 'none'; }
+
+  // Alerts
+  const absByStudent = {};
+  DB.absences.filter(a=>!isOffDay(a.date)).forEach(a=>{ absByStudent[a.student]=(absByStudent[a.student]||0)+1; });
+  const alerts = Object.entries(absByStudent).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const alertEl = document.getElementById('alert-list');
+  alertEl.innerHTML = alerts.length===0
+    ? '<div class="empty"><div class="empty-text">لا يوجد تنبيهات حالياً ✅</div></div>'
+    : alerts.map(([name,cnt]) => '<div class="alert-item '+(cnt>=5?'alert-red':'alert-gold')+'"><div class="alert-dot '+(cnt>=5?'dot-red':'dot-gold')+'"></div><div style="flex:1"><strong>'+name+'</strong><div style="font-size:12px;color:var(--text-light)">'+cnt+' غيابات</div></div><span class="chip '+(cnt>=5?'chip-red':'chip-gold')+'">'+(cnt>=5?'⚠️ عاجل':'🟡 متابعة')+'</span></div>').join('');
+
+  // Top students
+  const hwMap = {};
+  DB.homework.forEach(h=>{ if(!hwMap[h.student]) hwMap[h.student]={done:0,total:0}; hwMap[h.student].total++; if(h.done==='نعم') hwMap[h.student].done++; });
+  const top = Object.entries(hwMap).map(([n,{done,total}])=>{return {name:n,rate:done/total}}).sort((a,b)=>b.rate-a.rate).slice(0,5);
+  const topEl = document.getElementById('top-students-list');
+  topEl.innerHTML = top.length===0
+    ? '<div class="empty"><div class="empty-text">أدخل بيانات الواجبات لعرض الترتيب</div></div>'
+    : top.map((s,i)=>'<div class="student-item"><div class="student-avatar" style="background:'+COLORS[i%COLORS.length]+';font-size:14px">'+(i+1)+'</div><div class="student-info"><div class="student-name">'+s.name+'</div><div class="progress-wrap"><div class="progress-bar" style="width:'+Math.round(s.rate*100)+'%;background:var(--green-light)"></div></div></div><span class="chip chip-green">'+Math.round(s.rate*100)+'%</span></div>').join('');
+
+  // Recent absences
+  const recent = [...DB.absences].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  const recEl = document.getElementById('recent-absences');
+  recEl.innerHTML = recent.length===0
+    ? '<div class="empty"><div class="empty-text">لا يوجد غياب مسجل</div></div>'
+    : recent.map(a=>'<div class="record-row"><div><div style="font-size:14px;font-weight:600">'+a.student+'</div><div style="font-size:12px;color:var(--text-light)">'+arabicDay(a.date)+' '+fmtDate(a.date)+(a.reason?' · '+a.reason:'')+'</div></div><span class="chip chip-red">غائب</span></div>').join('');
+}
+
+// ═══════════════════════════════════════════
+// STUDENTS
+// ═══════════════════════════════════════════
+function renderStudents() {
+  let list = [...DB.students];
+  if (currentStatusFilter!=='all') list=list.filter(s=>s.status===currentStatusFilter);
+  if (currentSearch) list=list.filter(s=>s.name.includes(currentSearch));
+  list.sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  document.getElementById('students-count-badge').textContent = list.length+' طالب';
+  const el = document.getElementById('students-list');
+  el.innerHTML = list.length===0 ? '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">لا يوجد نتائج</div></div>'
+    : list.map(s=>{
+        const absCnt = DB.absences.filter(a=>a.student===s.name&&!isOffDay(a.date)).length;
+        const bc = s.status==='نشط'?'badge-active':s.status==='منقطع'?'badge-absent':'badge-frozen';
+        return '<div class="student-item" onclick="openStudentDetail(\''+s.id+'\')"><div class="student-avatar" style="background:'+avatarColor(s.name)+'">'+initials(s.name)+'</div><div class="student-info"><div class="student-name">'+s.name+'</div><div class="student-meta">'+(s.group||'لا توجد مجموعة')+' · غياب: '+absCnt+'</div></div><span class="student-badge '+bc+'">'+s.status+'</span></div>';
+      }).join('');
+}
+
+function filterStudents() { currentSearch=document.getElementById('student-search').value.trim(); renderStudents(); }
+function filterByStatus(s,btn) {
+  currentStatusFilter=s;
+  document.querySelectorAll('#screen-students .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderStudents();
+}
+
+function openStudentDetail(id) {
+  const s = DB.students.find(s=>s.id===id);
+  if (!s) return;
+  const absCnt = DB.absences.filter(a=>a.student===s.name&&!isOffDay(a.date)).length;
+  const hw = DB.homework.filter(h=>h.student===s.name);
+  const hwRate = hw.length ? Math.round(hw.filter(h=>h.done==='نعم').length/hw.length*100) : 0;
+  const hifzCnt = DB.hifz.filter(h=>h.student===s.name).length;
+  const bc = s.status==='نشط'?'badge-active':s.status==='منقطع'?'badge-absent':'badge-frozen';
+  document.getElementById('student-detail-content').innerHTML =
+    '<div style="text-align:center;margin-bottom:16px"><div class="student-avatar" style="background:'+avatarColor(s.name)+';width:64px;height:64px;font-size:24px;margin:0 auto 10px">'+initials(s.name)+'</div><div style="font-size:20px;font-weight:700">'+s.name+'</div><span class="student-badge '+bc+'" style="margin-top:6px;display:inline-block">'+s.status+'</span></div>'+
+    '<div class="divider"></div>'+
+    '<div class="record-row"><span class="record-label">المجموعة</span><span class="record-val">'+(s.group||'—')+'</span></div>'+
+    '<div class="record-row"><span class="record-label">ولي الأمر</span><span class="record-val">'+(s.phone||'—')+'</span></div>'+
+    '<div class="divider"></div>'+
+    '<div class="record-row"><span class="record-label">إجمالي الغياب</span><span class="record-val" style="color:var(--red)">'+absCnt+' مرة</span></div>'+
+    '<div class="record-row"><span class="record-label">إنجاز الواجبات</span><span class="record-val" style="color:var(--green-mid)">'+hwRate+'%</span></div>'+
+    '<div class="record-row"><span class="record-label">جلسات الحفظ</span><span class="record-val">'+hifzCnt+' جلسة</span></div>'+
+    '<div class="divider"></div>'+
+    '<div class="form-group"><label class="form-label">المجموعة</label><select class="form-select" id="edit-group"><option value="">— اختر —</option>'+GROUP_LIST.map(g=>'<option value="'+g+'" '+(s.group===g?'selected':'')+'>'+g+'</option>').join('')+'</select></div>'+
+    '<div class="form-group"><label class="form-label">رقم واتساب ولي الأمر</label><input class="form-input" id="edit-phone" type="tel" value="'+(s.phone||'')+'"></div>'+
+    '<div class="form-group"><label class="form-label">ملاحظات</label><textarea class="form-textarea" id="edit-notes" style="min-height:60px">'+(s.notes||'')+'</textarea></div>'+
+    '<button class="btn btn-primary" onclick="saveStudentEdits(\''+id+'\')" style="margin-bottom:8px">💾 حفظ التعديلات</button>'+
+    '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+    '<button class="btn btn-outline btn-sm" style="flex:1" onclick="toggleStatus(\''+id+'\')">🔄 تغيير الحالة</button>'+
+    (s.phone ? '<a href="https://wa.me/2'+s.phone+'" class="btn btn-primary btn-sm" style="flex:1;text-decoration:none;background:#25D366" target="_blank">📱 واتساب</a>' : '')+
+    '</div>'+
+    '<button class="btn btn-danger" onclick="confirmDelete(\''+id+'\')">🗑️ إزالة من الكشوف</button>';
+  openModal('modal-student-detail');
+}
+
+function saveStudentEdits(id) {
+  const s = DB.students.find(s=>s.id===id);
+  const g = document.getElementById('edit-group').value;
+  if (g) s.group = g;
+  s.phone = document.getElementById('edit-phone').value.trim();
+  s.notes = document.getElementById('edit-notes').value.trim();
+  saveDB(); closeModal('modal-student-detail'); renderStudents(); fillSelects();
+  showToast('✅ تم تحديث بيانات '+s.name);
+}
+
+function toggleStatus(id) {
+  const s = DB.students.find(s=>s.id===id);
+  const statuses = ['نشط','منقطع','مجمد'];
+  s.status = statuses[(statuses.indexOf(s.status)+1)%statuses.length];
+  saveDB(); closeModal('modal-student-detail'); renderStudents(); fillSelects();
+  showToast('تم تغيير حالة '+s.name+' إلى '+s.status);
+}
+
+function confirmDelete(id) {
+  const s = DB.students.find(s=>s.id===id);
+  if (confirm('هل أنت متأكد من إزالة "'+s.name+'" من الكشوف نهائياً؟')) {
+    DB.students = DB.students.filter(s=>s.id!==id);
+    saveDB(); closeModal('modal-student-detail'); renderStudents(); fillSelects();
+    showToast('🗑️ تم إزالة '+s.name);
+  }
+}
+
+function saveNewStudent() {
+  const name = document.getElementById('new-student-name').value.trim();
+  if (!name) { showToast('❌ أدخل اسم الطالب'); return; }
+  if (DB.students.find(s=>s.name===name)) { showToast('⚠️ هذا الاسم موجود بالفعل'); return; }
+  DB.students.push({
+    id:'ST'+String(DB.students.length+1).padStart(3,'0'), name,
+    group:document.getElementById('new-student-group').value,
+    phone:document.getElementById('new-student-phone').value.trim(),
+    status:document.getElementById('new-student-status').value,
+    joinDate:today(),
+    notes:document.getElementById('new-student-note').value.trim()
+  });
+  saveDB(); closeModal('modal-add-student');
+  document.getElementById('new-student-name').value='';
+  document.getElementById('new-student-phone').value='';
+  document.getElementById('new-student-note').value='';
+  renderStudents(); fillSelects();
+  showToast('✅ تم إضافة '+name);
+}
+
+// ═══════════════════════════════════════════
+// ATTENDANCE
+// ═══════════════════════════════════════════
+function saveAbsence() {
+  const date=document.getElementById('abs-date').value;
+  const student=document.getElementById('abs-student').value;
+  const reason=document.getElementById('abs-reason').value.trim();
+  if (!date||!student) { showToast('❌ اختر التاريخ والطالب'); return; }
+  if (isOffDay(date)) { showToast('⛔ يوم '+arabicDay(date)+' إجازة'); return; }
+  if (DB.absences.find(a=>a.date===date&&a.student===student)) { showToast('⚠️ مسجل غياباً بالفعل'); return; }
+  DB.absences.push({id:Date.now(),date,student,reason});
+  saveDB(); document.getElementById('abs-reason').value='';
+  renderAbsences('all'); showToast('✅ تم تسجيل الغياب');
+}
+
+function renderAbsences(filter) {
+  let list=[...DB.absences].filter(a=>!isOffDay(a.date));
+  if(filter==='today') list=list.filter(a=>a.date===today());
+  else if(filter==='week') list=list.filter(a=>a.date>=weekAgo());
+  else if(filter==='month') list=list.filter(a=>a.date>=monthStart());
+  list.sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('absences-list');
+  el.innerHTML=list.length===0?'<div class="empty"><div class="empty-text">لا يوجد غياب</div></div>'
+    :list.map(a=>'<div class="record-row"><div><div style="font-size:14px;font-weight:600">'+a.student+'</div><div style="font-size:12px;color:var(--text-light)">'+arabicDay(a.date)+' '+fmtDate(a.date)+(a.reason?' · '+a.reason:'')+'</div></div><button onclick="deleteAbsence('+a.id+')" style="border:none;background:none;color:var(--red);font-size:18px;cursor:pointer;padding:4px">🗑️</button></div>').join('');
+}
+
+function filterAbsences(f,btn) {
+  document.querySelectorAll('#screen-attendance .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderAbsences(f);
+}
+
+function deleteAbsence(id) {
+  DB.absences=DB.absences.filter(a=>a.id!==id);
+  saveDB(); renderAbsences('all'); showToast('🗑️ تم الحذف');
+}
+
+// ═══════════════════════════════════════════
+// HOMEWORK
+// ═══════════════════════════════════════════
+function saveHomework() {
+  const date=document.getElementById('hw-date').value;
+  const student=document.getElementById('hw-student').value;
+  const task=document.getElementById('hw-task').value.trim();
+  if(!date||!student||!task){ showToast('❌ اكمل الحقول المطلوبة'); return; }
+  DB.homework.push({id:Date.now(),date,student,task,done:document.getElementById('hw-done').value,grade:document.getElementById('hw-grade').value,note:document.getElementById('hw-note').value.trim()});
+  saveDB(); document.getElementById('hw-task').value=''; document.getElementById('hw-note').value='';
+  renderHomework(); showToast('✅ تم حفظ الواجب');
+}
+
+function renderHomework() {
+  const list=[...DB.homework].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30);
+  const el=document.getElementById('homework-list');
+  el.innerHTML=list.length===0?'<div class="empty"><div class="empty-text">لا يوجد واجبات</div></div>'
+    :list.map(h=>'<div class="record-row"><div style="flex:1"><div style="font-size:14px;font-weight:600">'+h.student+'</div><div style="font-size:12px;color:var(--text-light)">'+fmtDate(h.date)+' · '+h.task+'</div></div><span class="chip '+(h.done==='نعم'?'chip-green':'chip-red')+'">'+(h.done==='نعم'?'✅':'❌')+'</span></div>').join('');
+}
+
+// ═══════════════════════════════════════════
+// HIFZ
+// ═══════════════════════════════════════════
+function saveHifz() {
+  const date=document.getElementById('hf-date').value;
+  const student=document.getElementById('hf-student').value;
+  if(!date||!student){ showToast('❌ اختر التاريخ والطالب'); return; }
+  DB.hifz.push({id:Date.now(),date,student,newMem:document.getElementById('hf-new').value,review:document.getElementById('hf-review').value,grade:document.getElementById('hf-grade').value,note:document.getElementById('hf-note').value.trim()});
+  saveDB(); document.getElementById('hf-note').value='';
+  renderHifz(); showToast('✅ تم تسجيل جلسة الحفظ');
+}
+
+function renderHifz() {
+  const list=[...DB.hifz].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30);
+  const gc={ممتاز:'chip-green','جيد جداً':'chip-green',جيد:'chip-gold',مقبول:'chip-gold',ضعيف:'chip-red'};
+  const el=document.getElementById('hifz-list');
+  el.innerHTML=list.length===0?'<div class="empty"><div class="empty-text">لا يوجد جلسات</div></div>'
+    :list.map(h=>'<div class="record-row"><div style="flex:1"><div style="font-size:14px;font-weight:600">'+h.student+'</div><div style="font-size:12px;color:var(--text-light)">'+fmtDate(h.date)+' · حفظ: '+h.newMem+' · مراجعة: '+h.review+'</div></div><span class="chip '+(gc[h.grade]||'chip-gold')+'">'+h.grade+'</span></div>').join('');
+}
+
+// ═══════════════════════════════════════════
+// FEES
+// ═══════════════════════════════════════════
+function getFeeRecord(name,month) { return (DB.fees||[]).find(f=>f.student===name&&f.month===month); }
+
+function initFeesMonths() {
+  const sel=document.getElementById('fees-month');
+  if(!sel) return;
+  const cur=currentMonth();
+  let html='';
+  for(let i=0;i<=5;i++){ const d=new Date(); d.setMonth(d.getMonth()-i); const ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); html+='<option value="'+ym+'" '+(ym===cur?'selected':'')+'>'+monthLabel(ym)+'</option>'; }
+  sel.innerHTML=html;
+}
+
+function renderFees() {
+  if(!DB.fees) DB.fees=[];
+  const month=document.getElementById('fees-month')?.value||currentMonth();
+  const active=DB.students.filter(s=>s.status==='نشط').sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  const paid=active.filter(s=>getFeeRecord(s.name,month)?.paid);
+  const unpaid=active.filter(s=>!getFeeRecord(s.name,month)?.paid);
+  document.getElementById('fees-paid-count').textContent=paid.length;
+  document.getElementById('fees-unpaid-count').textContent=unpaid.length;
+  document.getElementById('fees-unpaid-badge').textContent=unpaid.length+' لم يدفعوا';
+  const search=(document.getElementById('fees-search')?.value||'').trim();
+  let list=active;
+  if(feeFilter==='paid') list=paid;
+  if(feeFilter==='unpaid') list=unpaid;
+  if(search) list=list.filter(s=>s.name.includes(search));
+  const el=document.getElementById('fees-list');
+  el.innerHTML=list.length===0?'<div class="empty"><div class="empty-text">لا يوجد طلاب</div></div>'
+    :list.map(s=>{
+        const isPaid=getFeeRecord(s.name,month)?.paid;
+        const rec=getFeeRecord(s.name,month);
+        return '<div class="card" style="margin-bottom:8px;padding:12px"><div style="display:flex;align-items:center;gap:12px"><div class="student-avatar" style="background:'+avatarColor(s.name)+';width:40px;height:40px;font-size:14px;flex-shrink:0">'+initials(s.name)+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600">'+s.name+'</div><div style="font-size:12px;color:var(--text-light)">'+(s.group||'—')+'</div></div><button onclick="toggleFee(\''+s.name+'\',\''+month+'\')" style="border:none;border-radius:24px;padding:8px 14px;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:'+(isPaid?'var(--green-pale)':'var(--red-pale)')+';color:'+(isPaid?'var(--green-mid)':'var(--red)')+'">'+( isPaid?'✅ دفع':'❌ لم يدفع')+'</button></div>'+(rec?.date?'<div style="font-size:11px;color:var(--text-light);margin-top:6px;padding-right:52px">تاريخ الدفع: '+rec.date+'</div>':'')+'</div>';
+      }).join('');
+}
+
+function filterFeesList(f,btn) {
+  feeFilter=f;
+  document.querySelectorAll('#screen-fees .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderFees();
+}
+
+function toggleFee(name,month) {
+  if(!DB.fees) DB.fees=[];
+  const i=DB.fees.findIndex(f=>f.student===name&&f.month===month);
+  if(i>=0) { if(DB.fees[i].paid){ DB.fees.splice(i,1); showToast('تم تحديد '+name+' كـ لم يدفع'); } else { DB.fees[i].paid=true; DB.fees[i].date=today(); showToast('✅ تم تسجيل دفع '+name); } }
+  else { DB.fees.push({student:name,month,paid:true,date:today()}); showToast('✅ تم تسجيل دفع '+name); }
+  saveDB(); renderFees();
+}
+
+function markAllUnpaid() {
+  const month=document.getElementById('fees-month')?.value||currentMonth();
+  if(confirm('تصفير سجل دفع '+monthLabel(month)+'؟')) { DB.fees=DB.fees.filter(f=>f.month!==month); saveDB(); renderFees(); showToast('تم تصفير الشهر'); }
+}
+
+function loadBulkFees() {
+  const month=currentMonth();
+  const active=DB.students.filter(s=>s.status==='نشط');
+  const unpaid=active.filter(s=>!getFeeRecord(s.name,month)?.paid);
+  const el=document.getElementById('bulk-fees-count');
+  const el2=document.getElementById('bulk-fees-list');
+  if(!el||!el2) return;
+  el.textContent=unpaid.length+' طالب لم يدفعوا مصروف '+monthLabel(month);
+  el2.innerHTML=unpaid.length===0?'<div class="empty"><div class="empty-text">✅ جميع الطلاب دفعوا</div></div>'
+    :unpaid.map(s=>'<div class="record-row"><span style="font-size:13px;font-weight:600">'+s.name+'</span>'+(s.phone?'<a href="https://wa.me/2'+s.phone+'?text='+encodeURIComponent('السلام عليكم ورحمة الله،\nولي أمر الطالب/ '+s.name+'\nنذكركم بسداد المصروف الشهري.\nجزاكم الله خيراً.')+'" target="_blank" style="text-decoration:none"><span class="chip chip-green">📱 إرسال</span></a>':'<span class="chip chip-gold">لا يوجد رقم</span>')+'</div>').join('');
+}
+
+// ═══════════════════════════════════════════
+// GROUPS
+// ═══════════════════════════════════════════
+function renderGroups() {
+  const populated=GROUP_LIST.filter(g=>DB.students.some(s=>s.group===g&&s.status==='نشط'));
+  const ungrouped=DB.students.filter(s=>s.status==='نشط'&&!s.group);
+  const all=[...populated,...(ungrouped.length?['بدون مجموعة']:[])];
+  if(all.length===0){ document.getElementById('groups-tabs').innerHTML=''; document.getElementById('groups-content').innerHTML='<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">أضف مجموعات للطلاب من شاشة الطلاب</div></div>'; return; }
+  if(!all.includes(activeGroup)) activeGroup=all[0];
+  document.getElementById('groups-tabs').innerHTML=all.map(g=>'<button class="tab '+(g===activeGroup?'active':'')+'" onclick="selectGroup(\''+g+'\',this)">'+g+'</button>').join('');
+  renderGroupDetail(activeGroup);
+}
+
+function selectGroup(g,btn) {
+  activeGroup=g;
+  document.querySelectorAll('#groups-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderGroupDetail(g);
+}
+
+function renderGroupDetail(g) {
+  const students=g==='بدون مجموعة'?DB.students.filter(s=>s.status==='نشط'&&!s.group):DB.students.filter(s=>s.status==='نشط'&&s.group===g);
+  const month=currentMonth();
+  const totalAbs=students.reduce((sum,s)=>sum+DB.absences.filter(a=>a.student===s.name&&!isOffDay(a.date)).length,0);
+  const paidCnt=students.filter(s=>getFeeRecord(s.name,month)?.paid).length;
+  const hwAll=DB.homework.filter(h=>students.some(s=>s.name===h.student));
+  const hwRate=hwAll.length?Math.round(hwAll.filter(h=>h.done==='نعم').length/hwAll.length*100):0;
+  document.getElementById('groups-content').innerHTML=
+    '<div class="kpi-grid" style="margin-bottom:12px">'+
+    '<div class="kpi-card kpi-green"><div class="kpi-val">'+students.length+'</div><div class="kpi-label">عدد الطلاب</div></div>'+
+    '<div class="kpi-card kpi-red"><div class="kpi-val">'+totalAbs+'</div><div class="kpi-label">إجمالي الغياب</div></div>'+
+    '<div class="kpi-card kpi-blue"><div class="kpi-val">'+hwRate+'%</div><div class="kpi-label">إنجاز الواجبات</div></div>'+
+    '<div class="kpi-card kpi-gold"><div class="kpi-val">'+paidCnt+'/'+students.length+'</div><div class="kpi-label">دفعوا المصروف</div></div>'+
+    '</div>'+
+    '<div class="card"><div class="card-title">👥 طلاب '+g+'</div>'+
+    (students.length===0?'<div class="empty"><div class="empty-text">لا يوجد طلاب</div></div>'
+      :students.map(s=>{
+          const absCnt=DB.absences.filter(a=>a.student===s.name&&!isOffDay(a.date)).length;
+          const paid=getFeeRecord(s.name,month)?.paid;
+          return '<div class="student-item" onclick="openStudentDetail(\''+s.id+'\')"><div class="student-avatar" style="background:'+avatarColor(s.name)+';width:40px;height:40px;font-size:13px">'+initials(s.name)+'</div><div class="student-info"><div class="student-name">'+s.name+'</div><div class="student-meta">غياب: '+absCnt+' · '+(paid?'✅ دفع':'❌ لم يدفع')+'</div></div><span class="chip '+(absCnt>=5?'chip-red':absCnt>=3?'chip-gold':'chip-green')+'">'+(absCnt>=5?'⚠️':absCnt>=3?'🟡':'✅')+'</span></div>';
+        }).join(''))+'</div>';
+}
+
+// ═══════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════
+function switchReportTab(tab,btn) {
+  document.querySelectorAll('#screen-reports .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['weekly','monthly','student','messages'].forEach(t=>{ document.getElementById('report-'+t).style.display=t===tab?'block':'none'; });
+  if(tab==='weekly') refreshWeeklyStats();
+  if(tab==='monthly') { initMonthlySelect(); renderMonthlyReport(); }
+  if(tab==='student'||tab==='messages') fillSelects();
+}
+
+function refreshWeeklyStats() {
+  const wAbs=DB.absences.filter(a=>a.date>=weekAgo()&&!isOffDay(a.date)).length;
+  const active=DB.students.filter(s=>s.status==='نشط').length;
+  const hwW=DB.homework.filter(h=>h.date>=weekAgo());
+  const hwRate=hwW.length?Math.round(hwW.filter(h=>h.done==='نعم').length/hwW.length*100):0;
+  const absByS={};
+  DB.absences.filter(a=>!isOffDay(a.date)).forEach(a=>{absByS[a.student]=(absByS[a.student]||0)+1;});
+  const needF=Object.values(absByS).filter(c=>c>=3).length;
+  document.getElementById('weekly-stats').innerHTML=
+    '<div class="record-row"><span class="record-label">الطلاب النشطون</span><span class="record-val">'+active+' طالب</span></div>'+
+    '<div class="record-row"><span class="record-label">غياب الأسبوع</span><span class="record-val" style="color:var(--red)">'+wAbs+' طالب</span></div>'+
+    '<div class="record-row"><span class="record-label">نسبة الحضور</span><span class="record-val" style="color:var(--green-mid)">'+(active>0?Math.round((1-wAbs/active/5)*100):100)+'%</span></div>'+
+    '<div class="record-row"><span class="record-label">نسبة الواجبات</span><span class="record-val">'+hwRate+'%</span></div>'+
+    '<div class="record-row"><span class="record-label">يحتاجون متابعة</span><span class="record-val" style="color:var(--orange)">'+needF+' طالب</span></div>';
+}
+
+function generateWeeklyReport() {
+  const wAbs=DB.absences.filter(a=>a.date>=weekAgo()&&!isOffDay(a.date)).length;
+  const active=DB.students.filter(s=>s.status==='نشط').length;
+  const hwW=DB.homework.filter(h=>h.date>=weekAgo());
+  const hwRate=hwW.length?Math.round(hwW.filter(h=>h.done==='نعم').length/hwW.length*100):0;
+  const hwMap={};
+  DB.homework.forEach(h=>{if(!hwMap[h.student])hwMap[h.student]={done:0,total:0};hwMap[h.student].total++;if(h.done==='نعم')hwMap[h.student].done++;});
+  const top=Object.entries(hwMap).sort((a,b)=>(b[1].done/b[1].total)-(a[1].done/a[1].total)).slice(0,3).map(([n])=>'• '+n).join('\n');
+  const ex=document.getElementById('rpt-explained').value.trim();
+  const mem=document.getElementById('rpt-memorized').value.trim();
+  const hw=document.getElementById('rpt-homework').value.trim();
+  const plan=document.getElementById('rpt-plan').value.trim();
+  const rpt='📅 التقرير الأسبوعي\n'+new Date().toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'})+'\n━━━━━━━━━━━━━━━━━━━━\n📊 إحصائيات الأسبوع:\n• الطلاب النشطون: '+active+'\n• الغياب: '+wAbs+'\n• نسبة الحضور: '+(active>0?Math.round((1-wAbs/active/5)*100):100)+'%\n• إنجاز الواجبات: '+hwRate+'%\n━━━━━━━━━━━━━━━━━━━━\n'+(ex?'📖 ما تم شرحه:\n'+ex+'\n━━━━━━━━━━━━━━━━━━━━\n':'')+(mem?'🌙 ما تم حفظه/مراجعته:\n'+mem+'\n━━━━━━━━━━━━━━━━━━━━\n':'')+(top?'🏆 أكثر الطلاب التزاماً:\n'+top+'\n━━━━━━━━━━━━━━━━━━━━\n':'')+(hw?'📝 الواجب المطلوب:\n'+hw+'\n━━━━━━━━━━━━━━━━━━━━\n':'')+(plan?'🗓️ خطة الأسبوع القادم:\n'+plan:'');
+  document.getElementById('weekly-report-text').textContent=rpt;
+  document.getElementById('weekly-report-output').style.display='block';
+}
+
+function copyReport() { navigator.clipboard.writeText(document.getElementById('weekly-report-text').textContent).then(()=>showToast('✅ تم النسخ')); }
+function shareReport() {
+  const text=document.getElementById('weekly-report-text').textContent;
+  if(navigator.share) navigator.share({title:'التقرير الأسبوعي',text});
+  else window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+function initMonthlySelect() {
+  const sel=document.getElementById('monthly-select');
+  if(!sel) return;
+  const cur=currentMonth(); let html='';
+  for(let i=0;i<=11;i++){ const d=new Date(); d.setMonth(d.getMonth()-i); const ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); html+='<option value="'+ym+'" '+(ym===cur?'selected':'')+'>'+monthLabel(ym)+'</option>'; }
+  sel.innerHTML=html;
+}
+
+function renderMonthlyReport() {
+  const month=document.getElementById('monthly-select')?.value||currentMonth();
+  const mStart=month+'-01', mEnd=month+'-31';
+  const active=DB.students.filter(s=>s.status==='نشط');
+  const mAbs=DB.absences.filter(a=>a.date>=mStart&&a.date<=mEnd&&!isOffDay(a.date));
+  const mHW=DB.homework.filter(h=>h.date>=mStart&&h.date<=mEnd);
+  const hwRate=mHW.length?Math.round(mHW.filter(h=>h.done==='نعم').length/mHW.length*100):0;
+  const paid=active.filter(s=>getFeeRecord(s.name,month)?.paid).length;
+  document.getElementById('monthly-stats').innerHTML=
+    '<div class="record-row"><span class="record-label">الطلاب النشطون</span><span class="record-val">'+active.length+'</span></div>'+
+    '<div class="record-row"><span class="record-label">إجمالي الغياب</span><span class="record-val" style="color:var(--red)">'+mAbs.length+'</span></div>'+
+    '<div class="record-row"><span class="record-label">إنجاز الواجبات</span><span class="record-val" style="color:var(--green-mid)">'+hwRate+'%</span></div>'+
+    '<div class="record-row"><span class="record-label">دفعوا المصروف</span><span class="record-val" style="color:var(--green-mid)">'+paid+'</span></div>'+
+    '<div class="record-row"><span class="record-label">لم يدفعوا</span><span class="record-val" style="color:var(--red)">'+(active.length-paid)+'</span></div>';
+  const hwMap={};
+  mHW.forEach(h=>{if(!hwMap[h.student])hwMap[h.student]={done:0,total:0};hwMap[h.student].total++;if(h.done==='نعم')hwMap[h.student].done++;});
+  const top=Object.entries(hwMap).map(([n,{done,total}])=>{return {name:n,rate:Math.round(done/total*100)}}).sort((a,b)=>b.rate-a.rate).slice(0,5);
+  const topEl=document.getElementById('monthly-top');
+  topEl.style.display=top.length>0?'block':'none';
+  document.getElementById('monthly-top-list').innerHTML=top.map((s,i)=>'<div class="record-row"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+['🥇','🥈','🥉','4️⃣','5️⃣'][i]+'</span><span style="font-size:14px;font-weight:600">'+s.name+'</span></div><span class="chip chip-green">'+s.rate+'%</span></div>').join('');
+  const absByS={};
+  mAbs.forEach(a=>{absByS[a.student]=(absByS[a.student]||0)+1;});
+  const absList=Object.entries(absByS).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const absEl=document.getElementById('monthly-absent');
+  absEl.style.display=absList.length>0?'block':'none';
+  document.getElementById('monthly-absent-list').innerHTML=absList.map(([name,cnt])=>'<div class="record-row"><span style="font-size:14px;font-weight:600">'+name+'</span><span class="chip '+(cnt>=5?'chip-red':'chip-gold')+'">'+cnt+' غيابات</span></div>').join('');
+  const unpaid=active.filter(s=>!getFeeRecord(s.name,month)?.paid);
+  const feesEl=document.getElementById('monthly-fees-card');
+  feesEl.style.display=unpaid.length>0?'block':'none';
+  document.getElementById('monthly-fees-list').innerHTML=unpaid.map(s=>'<div class="record-row"><span style="font-size:14px;font-weight:600">'+s.name+'</span>'+(s.phone?'<a href="https://wa.me/2'+s.phone+'?text='+encodeURIComponent('السلام عليكم، نذكركم بسداد مصروف شهر '+monthLabel(month)+' للطالب '+s.name+'. جزاكم الله خيراً.')+'" target="_blank" style="text-decoration:none"><span class="chip chip-green">📱 واتساب</span></a>':'<span class="chip chip-gold">لا يوجد رقم</span>')+'</div>').join('');
+}
+
+function loadStudentStats() {
+  const name=document.getElementById('stat-student').value;
+  const el=document.getElementById('student-stats-content');
+  if(!name){ el.innerHTML=''; return; }
+  const abs=DB.absences.filter(a=>a.student===name&&!isOffDay(a.date));
+  const wAbs=abs.filter(a=>a.date>=weekAgo()).length;
+  const mAbs=abs.filter(a=>a.date>=monthStart()).length;
+  const hw=DB.homework.filter(h=>h.student===name);
+  const hwRate=hw.length?Math.round(hw.filter(h=>h.done==='نعم').length/hw.length*100):0;
+  const hifz=DB.hifz.filter(h=>h.student===name).length;
+  const alert=abs.length>=5?'⚠️ متعثر — يحتاج متابعة عاجلة':abs.length>=3?'🟡 غياب متكرر':'✅ ملتزم';
+  el.innerHTML='<div class="card"><div class="card-title">📊 إحصائيات '+name+'</div>'+
+    '<div class="record-row"><span class="record-label">إجمالي الغياب</span><span class="record-val" style="color:var(--red)">'+abs.length+' مرة</span></div>'+
+    '<div class="record-row"><span class="record-label">غياب الأسبوع</span><span class="record-val">'+wAbs+'</span></div>'+
+    '<div class="record-row"><span class="record-label">غياب الشهر</span><span class="record-val">'+mAbs+'</span></div>'+
+    '<div class="divider"></div>'+
+    '<div class="record-row"><span class="record-label">نسبة الواجبات</span><span class="record-val" style="color:'+(hwRate>=80?'var(--green-mid)':hwRate>=60?'var(--gold)':'var(--red)')+'">'+hwRate+'%</span></div>'+
+    '<div class="progress-wrap" style="margin:4px 0 8px"><div class="progress-bar" style="width:'+hwRate+'%;background:'+(hwRate>=80?'var(--green-light)':hwRate>=60?'var(--gold)':'var(--red)')+'"></div></div>'+
+    '<div class="record-row"><span class="record-label">جلسات الحفظ</span><span class="record-val">'+hifz+' جلسة</span></div>'+
+    '<div class="divider"></div>'+
+    '<div class="alert-item '+(abs.length>=5?'alert-red':abs.length>=3?'alert-gold':'alert-green')+'"><div class="alert-dot '+(abs.length>=5?'dot-red':abs.length>=3?'dot-gold':'dot-green')+'"></div><span style="font-weight:600;font-size:13px">'+alert+'</span></div>'+
+    '</div>'+
+    (abs.length>0?'<div class="card"><div class="card-title">📋 تفاصيل الغياب</div>'+abs.sort((a,b)=>b.date.localeCompare(a.date)).map(a=>'<div class="record-row"><span style="font-size:13px">'+arabicDay(a.date)+' '+fmtDate(a.date)+'</span><span style="font-size:12px;color:var(--text-light)">'+(a.reason||'—')+'</span></div>').join('')+'</div>':'');
+}
+
+function loadMessages() {
+  const name=document.getElementById('msg-student').value;
+  const el=document.getElementById('messages-list');
+  const info=document.getElementById('msg-info');
+  if(!name){ el.innerHTML=''; info.style.display='none'; return; }
+  info.style.display='block';
+  const absCnt=DB.absences.filter(a=>a.student===name&&!isOffDay(a.date)).length;
+  const hw=DB.homework.filter(h=>h.student===name);
+  const hwRate=hw.length?Math.round(hw.filter(h=>h.done==='نعم').length/hw.length*100):0;
+  document.getElementById('msg-absences').textContent=absCnt+' مرة';
+  document.getElementById('msg-hw-rate').textContent=hwRate+'%';
+  const s=DB.students.find(s=>s.name===name);
+  const phone=s?.phone||'';
+  const msgs=[
+    {title:'🔴 رسالة غياب',bg:'var(--red-pale)',text:'السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ '+name+'\nنود إعلامكم بأن ابنكم غاب اليوم عن حصة القرآن الكريم.\nنأمل متابعته والاطلاع على سبب غيابه.\nجزاكم الله خيراً.'},
+    {title:'🟠 رسالة تكرار الغياب',bg:'var(--orange-pale)',text:'السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ '+name+'\nبلغت مرات غياب ابنكم '+absCnt+' مرة حتى الآن.\nنطلب منكم التواصل مع المعلم لمعرفة سبب ذلك والمتابعة.\nجزاكم الله خيراً.'},
+    {title:'📘 رسالة عدم أداء الواجب',bg:'var(--blue-pale)',text:'السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ '+name+'\nلم يؤدِّ ابنكم الواجب المطلوب.\nنسبة إنجازه الحالية: '+hwRate+'%\nنرجو توجيهه ومتابعته في المنزل.\nجزاكم الله خيراً.'},
+    {title:'🌟 رسالة تميز وتفوق',bg:'var(--green-pale)',text:'السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ '+name+'\nيسعدنا أن نبشركم بأن ابنكم أبدى أداءً متميزاً هذا الأسبوع.\nنسبة التزامه: '+hwRate+'%\nنشكر اهتمامكم ونسأل الله له التوفيق.\nجزاكم الله خيراً.'},
+    {title:'🔴 رسالة ضعف مستوى',bg:'var(--red-pale)',text:'السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ '+name+'\nلاحظ المعلم ضعفاً في مستوى ابنكم مؤخراً.\nنسبة التزامه: '+hwRate+'%\nنطلب التواصل لوضع خطة متابعة.\nجزاكم الله خيراً.'},
+    {title:'💚 رسالة شكر وتحفيز',bg:'var(--green-pale)',text:'السلام عليكم ورحمة الله وبركاته،\nولي أمر الطالب/ '+name+'\nنشكركم على متابعتكم الكريمة لابنكم.\nنسأل الله أن يبارك فيه وينفعه بما تعلم.\nشكراً لتعاونكم الدائم.'}
+  ];
+  window._msgs=msgs;
+  el.innerHTML=msgs.map((m,i)=>'<div class="card" style="margin-bottom:10px"><div class="card-title">'+m.title+'</div><div class="msg-card" style="background:'+m.bg+';border-color:rgba(0,0,0,.1)">'+m.text+'</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-outline btn-sm" style="flex:1" onclick="copyMsg('+i+')">📋 نسخ</button>'+(phone?'<a href="https://wa.me/2'+phone+'?text='+encodeURIComponent(m.text)+'" class="btn btn-primary btn-sm" style="flex:1;text-decoration:none;background:#25D366" target="_blank">📱 إرسال</a>':'')+'</div></div>').join('');
+}
+
+function copyMsg(i) { navigator.clipboard.writeText(window._msgs[i].text).then(()=>showToast('✅ تم النسخ')); }
+
+// ═══════════════════════════════════════════
+// ALARM
+// ═══════════════════════════════════════════
+function setAlarm() {
+  const time=document.getElementById('alarm-time').value;
+  if(!time){ showToast('اختر وقت التذكير'); return; }
+  if(!('Notification' in window)){ showAlarmStatus('⚠️ متصفحك لا يدعم الإشعارات','var(--orange-pale)'); return; }
+  Notification.requestPermission().then(perm=>{
+    if(perm==='granted'){ localStorage.setItem('alarm_time',time); showAlarmStatus('✅ تم تفعيل التذكير الساعة '+time,'var(--green-pale)'); scheduleAlarm(time); showToast('✅ تم تفعيل التذكير'); }
+    else { showAlarmStatus('❌ لم تُمنح صلاحية الإشعارات','var(--red-pale)'); }
+  });
+}
+function scheduleAlarm(time) {
+  const [h,m]=time.split(':').map(Number);
+  const now=new Date(), next=new Date();
+  next.setHours(h,m,0,0);
+  if(next<=now) next.setDate(next.getDate()+1);
+  setTimeout(()=>{
+    new Notification('🕌 المركز التعليمي',{body:'تذكير: لا تنسَ تسجيل الغياب اليوم',icon:'icon-192.png'});
+    scheduleAlarm(time);
+  },next-now);
+}
+function cancelAlarm() { localStorage.removeItem('alarm_time'); showAlarmStatus('🗑️ تم إلغاء التذكير','var(--gold-pale)'); showToast('تم إلغاء التذكير'); }
+function showAlarmStatus(msg,bg) { const el=document.getElementById('alarm-status'); el.style.display='block'; el.style.background=bg; el.textContent=msg; }
+function initAlarm() { const t=localStorage.getItem('alarm_time'); if(t){ document.getElementById('alarm-time').value=t; scheduleAlarm(t); } }
+
+// ═══════════════════════════════════════════
+// MODAL & TOAST
+// ═══════════════════════════════════════════
+function openModal(id) {
+  const el=document.getElementById(id);
+  el.classList.add('open');
+  el.addEventListener('click',function(e){if(e.target===this)closeModal(id);},{once:true});
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ═══════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════
+initDB();
+fillSelects();
+refreshDashboard();
+initAlarm();
+['abs-date','hw-date','hf-date'].forEach(setTodayDate);
+document.getElementById('today-date').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
